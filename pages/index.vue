@@ -1,5 +1,6 @@
 <template>
-    <ConfiguratorView />
+   
+    <ConfiguratorViewM/>
   </template>
   
   <script setup>
