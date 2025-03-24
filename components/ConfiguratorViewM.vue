@@ -9,31 +9,21 @@
         <i class="i-heroicons-information-circle" />
       </div>
       <div v-if="showInfo" class="info-tooltip">
-        Bei einer Gleichschließung können alle Schlüssel alle Türen öffnen, bei
-        einer Schließanlage benötigen Schlüssel eine gezielte Zuweisung.
+        Bei einer Gleichschließung können alle Schlüssel alle Türen öffnen, bei einer Schließanlage benötigen Schlüssel eine gezielte Zuweisung.
       </div>
     </div>
 
     <!-- Anlagennummer -->
     <div class="mobile-section">
       <h2>Anlagennummer:</h2>
-      <input
-        type="text"
-        readonly
-        v-model="anlageNr"
-        placeholder="Anlagenummer"
-      />
+      <input type="text" readonly v-model="anlageNr" placeholder="Anlagenummer" />
     </div>
 
     <!-- Modellauswahl -->
     <div class="mobile-section">
       <h2>Modellauswahl:</h2>
       <select :value="selectedModelLocal" @change="onModelSelect($event)">
-        <option
-          v-for="model in store.availableModels"
-          :key="model"
-          :value="model"
-        >
+        <option v-for="model in store.availableModels" :key="model" :value="model">
           {{ model }}
         </option>
       </select>
@@ -43,34 +33,21 @@
     <div class="mobile-section">
       <label>
         <span>Gleichschließung aktivieren:</span>
-        <UToggle
-          color="sky"
-          v-model="finalGleichschliessungState"
-          :disabled="disableGleichToggle"
-        />
+        <UToggle color="sky" v-model="finalGleichschliessungState" :disabled="disableGleichToggle" />
       </label>
     </div>
 
     <!-- Türdetails (Akkordeon) -->
-    <div
-      class="mobile-accordion"
-      v-for="(row, rowIndex) in rows"
-      :key="rowIndex"
-    >
+    <div class="mobile-accordion" v-for="(row, rowIndex) in rows" :key="rowIndex">
       <div class="accordion-header" @click="toggleAccordion(rowIndex)">
         <h3>Tür {{ rowIndex + 1 }}</h3>
-        <i
-          :class="accordionOpen[rowIndex] ? 'i-heroicons-chevron-up' : 'i-heroicons-chevron-down'"
-        />
+        <i :class="accordionOpen[rowIndex] ? 'i-heroicons-chevron-up' : 'i-heroicons-chevron-down'" />
       </div>
       <div v-if="accordionOpen[rowIndex]" class="accordion-content">
         <!-- Türbezeichnung -->
         <div class="input-group">
           <label>Türbezeichnung:</label>
-          <UInput
-            v-model="row[0].doorDesignation"
-            placeholder="z.B. Haupteingang"
-          />
+          <UInput v-model="row[0].doorDesignation" placeholder="z.B. Haupteingang" />
         </div>
 
         <!-- Anzahl -->
@@ -84,11 +61,7 @@
           <label>Zylinder-Typ:</label>
           <select v-model="row[0].type">
             <option disabled value="">Bitte auswählen</option>
-            <option
-              v-for="type in store.availableTypes"
-              :key="type"
-              :value="type"
-            >
+            <option v-for="type in store.availableTypes" :key="type" :value="type">
               {{ type }}
             </option>
           </select>
@@ -100,21 +73,13 @@
           <div class="size-inputs">
             <select v-model="row[0].outside">
               <option value="">Außen</option>
-              <option
-                v-for="size in getAvailableOutsideSizes(row[0])"
-                :key="size"
-                :value="size"
-              >
+              <option v-for="size in getAvailableOutsideSizes(row[0])" :key="size" :value="size">
                 {{ size }} mm
               </option>
             </select>
             <select v-model="row[0].inside">
               <option value="">Innen</option>
-              <option
-                v-for="size in getAvailableInsideSizes(row[0])"
-                :key="size"
-                :value="size"
-              >
+              <option v-for="size in getAvailableInsideSizes(row[0])" :key="size" :value="size">
                 {{ size }} mm
               </option>
             </select>
@@ -124,27 +89,17 @@
         <!-- Optionen -->
         <div class="input-group">
           <label>Optionen:</label>
-          <UButton
-            @click.stop="openOptionsModal(rowIndex)"
-            icon="i-heroicons-cog"
-          >
+          <UButton @click.stop="openOptionsModal(rowIndex)" icon="i-heroicons-cog">
             {{ getSelectedOptionsText(row[0]) || "Optionen auswählen" }}
           </UButton>
         </div>
 
         <!-- Aktionen (Duplizieren/Löschen) -->
         <div class="action-buttons">
-          <UButton
-            @click="duplicateRow(rowIndex)"
-            icon="i-heroicons-document-duplicate"
-          >
+          <UButton @click="duplicateRow(rowIndex)" icon="i-heroicons-document-duplicate">
             Duplizieren
           </UButton>
-          <UButton
-            @click="deleteRow(rowIndex)"
-            icon="i-heroicons-trash"
-            color="red"
-          >
+          <UButton @click="deleteRow(rowIndex)" icon="i-heroicons-trash" color="red">
             Löschen
           </UButton>
         </div>
@@ -153,11 +108,7 @@
 
     <!-- Schlüssel hinzufügen -->
     <div class="mobile-section">
-      <UButton
-        @click="addCheckbox"
-        icon="i-heroicons-plus"
-        class="action-button"
-      >
+      <UButton @click="addCheckbox" icon="i-heroicons-plus" class="action-button">
         Schlüssel hinzufügen
       </UButton>
     </div>
@@ -172,33 +123,39 @@
       </UButton>
     </div>
 
-    <!-- Options Modal über UModal -->
-    <UModal v-model="modalOptionsVisible">
-      <template #header>
+    <!-- Options Modal als einfaches div -->
+    <div v-if="modalOptionsVisible" class="options-modal">
+      <div class="options-modal-content">
         <h3>Optionen auswählen</h3>
-      </template>
-      <template #body>
-        <div v-if="activeOptionsModalIndex !== null">
-          <div v-for="option in getAllOptionsForType(rows[activeOptionsModalIndex][0]).Optionen" :key="option" class="option-item">
-            <label>
-              <input type="checkbox" :value="option" v-model="modalOptionsSelected" />
-              {{ option }}
-            </label>
+        <div class="options-modal-body">
+          <div v-if="activeOptionsModalIndex !== null">
+            <div
+              v-for="option in (getAllOptionsForType(rows[activeOptionsModalIndex][0]).Optionen || [])"
+              :key="option"
+              class="option-item"
+            >
+              <label>
+                <input type="checkbox" :value="option" v-model="modalOptionsSelected" />
+                {{ option }}
+              </label>
+            </div>
+          </div>
+          <div v-else>
+            <p>Keine Optionen verfügbar.</p>
           </div>
         </div>
-      </template>
-      <template #footer>
-        <UButton @click="applyOptions" class="modal-button confirm">Übernehmen</UButton>
-        <UButton @click="closeOptionsModal" class="modal-button cancel">Abbrechen</UButton>
-      </template>
-    </UModal>
+        <div class="options-modal-footer">
+          <UButton @click="applyOptions" class="modal-button confirm">Übernehmen</UButton>
+          <UButton @click="closeOptionsModal" class="modal-button cancel">Abbrechen</UButton>
+        </div>
+      </div>
+    </div>
 
     <!-- Warnungsmodal für Modellwechsel -->
     <div v-if="isWarningModalOpen" class="warning-modal">
       <div class="warning-modal-content">
         <p>
-          Modell wechseln? Dadurch werden alle aktuellen Einstellungen
-          zurückgesetzt.
+          Modell wechseln? Dadurch werden alle aktuellen Einstellungen zurückgesetzt.
         </p>
         <div class="modal-buttons">
           <button @click="confirmChange" class="modal-button confirm">
@@ -216,7 +173,6 @@
 <script>
 import { ref } from "vue";
 import { useCylinderStore } from "@/stores/cylinderStores.js";
-// Angenommen, UModal, UButton, UInput und UToggle sind globale Komponenten (oder werden importiert)
 export default {
   name: "MobileConfiguratorView",
   data() {
@@ -594,9 +550,7 @@ export default {
     },
     deleteCheckbox(colIndex) {
       if (colIndex === 0) {
-        alert(
-          "Die erste Spalte enthält die Hauptdaten und kann nicht entfernt werden."
-        );
+        alert("Die erste Spalte enthält die Hauptdaten und kann nicht entfernt werden.");
         return;
       }
       const hasMultipleColumns = this.rows.some((row) => row.length > 1);
@@ -702,9 +656,7 @@ export default {
             }
           }
           if (!foundAtLeastOne) {
-            alert(
-              `Bitte mindestens eine Berechtigung in Spalte #${c + 1} anklicken (Schließanlage).`
-            );
+            alert(`Bitte mindestens eine Berechtigung in Spalte #${c + 1} anklicken (Schließanlage).`);
             return;
           }
         }
@@ -1046,6 +998,38 @@ input[type="number"] {
   background-color: #357ab7;
 }
 
+/* Options Modal als div */
+.options-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 110;
+}
+
+.options-modal-content {
+  background: #fff;
+  border-radius: 8px;
+  padding: 16px;
+  width: 80%;
+  max-width: 300px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.options-modal-body {
+  margin: 16px 0;
+}
+
+.options-modal-footer {
+  display: flex;
+  justify-content: space-around;
+}
+
 /* Warnungsmodal für Modellwechsel */
 .warning-modal {
   position: fixed;
@@ -1093,7 +1077,7 @@ input[type="number"] {
   color: #333;
 }
 
-/* Optionen im UModal */
+/* Optionen im Modal */
 .option-item {
   margin-bottom: 8px;
 }
